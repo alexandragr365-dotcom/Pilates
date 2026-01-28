@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pilates Evolve - Lugares de Interés en Nezahualcóyotl</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8f9fa;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 350px 1fr 320px;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1.2rem;
+            color: #2c3e50;
+            font-weight: 600;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border-left: 3px solid #667eea;
+        }
+
+        .info-box p {
+            margin: 0.4rem 0;
+            font-size: 0.9rem;
+        }
+
+        .info-box strong {
+            color: #2c3e50;
+        }
+
+        .website-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .website-link:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        #map {
+            height: 500px;
+            border-radius: 8px;
+        }
+
+        .locations-title {
+            font-size: 1rem;
+            margin: 1.5rem 0 0.8rem 0;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .location-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .location-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+            transform: translateX(2px);
+        }
+
+        .location-item.active {
+            background: #f0f3ff;
+            border-color: #667eea;
+        }
+
+        .location-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.3rem;
+        }
+
+        .location-address {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .instagram-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .instagram-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            color: #2c3e50;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+
+        .profile-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .profile-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .profile-info h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+
+        .profile-info .handle {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .bio {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .follow-btn {
+            display: block;
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .follow-btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-maps {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .btn-maps:hover {
+            background: #764ba2;
+        }
+
+        @media (max-width: 968px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            #map {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Pilates Evolve - Lugares de Interés en Nezahualcóyotl</h1>
+    </div>
+
+    <div class="container">
+        <!-- Columna izquierda -->
+        <div>
+            <div class="card">
+                <h2>Información de Ubicación</h2>
+
+                <div class="info-box">
+                    <p><strong>Coordenadas GPS:</strong></p>
+                    <p id="coordinates">19.4003, -99.0115</p>
+                    
+                    <p style="margin-top: 0.8rem;"><strong>Dirección:</strong></p>
+                    <p id="address">Av. Bordo de Xochiaca, Plaza Jardín</p>
+                    
+                    <div id="websiteContainer" style="margin-top: 0.8rem;">
+                        <p><strong>Sitio Web:</strong></p>
+                        <a id="websiteLink" href="#" target="_blank" class="website-link">Visitar sitio web</a>
+                    </div>
+                </div>
+
+                <a id="googleMapsLink" href="#" target="_blank" class="btn-maps">Abrir en Google Maps</a>
+            </div>
+
+            <div class="locations-title">Lugares de Interés</div>
+            
+            <div class="location-item active" data-location="starbucks">
+                <div class="location-name">Starbucks Neza</div>
+                <div class="location-address">Av. Bordo de Xochiaca, Plaza Jardín</div>
+            </div>
+
+            <div class="location-item" data-location="plaza">
+                <div class="location-name">Plaza Centro Neza</div>
+                <div class="location-address">Av. Chimalhuacán, Centro</div>
+            </div>
+
+            <div class="location-item" data-location="parque">
+                <div class="location-name">Parque del Pueblo</div>
+                <div class="location-address">Av. Pantitlán, Col. Benito Juárez</div>
+            </div>
+
+            <div class="location-item" data-location="cinepolis">
+                <div class="location-name">Cinépolis Neza</div>
+                <div class="location-address">Plaza Las Américas, Nezahualcóyotl</div>
+            </div>
+
+            <div class="location-item" data-location="walmart">
+                <div class="location-name">Walmart Neza</div>
+                <div class="location-address">Av. Pantitlán, Col. Reforma</div>
+            </div>
+        </div>
+
+        <!-- Columna central - Mapa -->
+        <div class="card">
+            <div id="map"></div>
+        </div>
+
+        <!-- Columna derecha - Instagram -->
+<div class="instagram-section">
+            <div class="instagram-header">Redes Sociales</div>
+            
+            <div class="profile-container">
+                <div class="profile-img">PE</div>
+                <div class="profile-info">
+                    <h3>Pilates Evolve</h3>
+                    <div class="handle">@pilates_evolve</div>
+                </div>
+            </div>
+
+            <div class="bio">
+                Transforma tu cuerpo y mente con clases personalizadas de Pilates.<br><br>
+                Ubicación: Nezahualcóyotl, México<br>
+                Av. Adolfo López Mateos, Neza
+            </div>
+
+            <a href="https://www.instagram.com/pilates_evolve?igsh=bTg1cnYyMmhkNTQy" target="_blank" class="follow-btn">
+                Seguir en Instagram
+            </a>
+
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e0e0e0;">
+                <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.8rem; color: #2c3e50;">
+                    Lugar Seleccionado:
+                </div>
+                <div id="selectedPlaceName" style="font-size: 1rem; font-weight: 600; color: #667eea; margin-bottom: 0.5rem;">
+                    Starbucks Neza
+                </div>
+                <div id="selectedPlaceAddress" style="font-size: 0.85rem; color: #666; margin-bottom: 0.8rem;">
+                    Av. Bordo de Xochiaca, Plaza Jardín
+                </div>
+                <a id="selectedPlaceWebsite" href="https://www.starbucks.com.mx/" target="_blank" class="follow-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    Visitar Sitio Web
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const locations = {
+            starbucks: {
+                name: 'Starbucks Neza',
+                coords: [19.4003, -99.0115],
+                address: 'Av. Bordo de Xochiaca, Plaza Jardín',
+                description: 'Cafetería Starbucks',
+                website: 'https://www.starbucks.com.mx/'
+            },
+            plaza: {
+                name: 'Plaza Centro Neza',
+                coords: [19.4087, -99.0253],
+                address: 'Av. Chimalhuacán, Centro',
+                description: 'Centro Comercial',
+                website: 'https://plazacentroneza.com.mx/'
+            },
+            parque: {
+                name: 'Parque del Pueblo',
+                coords: [19.3945, -99.0178],
+                address: 'Av. Pantitlán, Col. Benito Juárez',
+                description: 'Parque recreativo',
+                website: 'https://neza.gob.mx/'
+            },
+            cinepolis: {
+                name: 'Cinépolis Neza',
+                coords: [19.4142, -99.0289],
+                address: 'Plaza Las Américas, Nezahualcóyotl',
+                description: 'Complejo cinematográfico',
+                website: 'https://www.cinepolis.com/'
+            },
+            walmart: {
+                name: 'Walmart Neza',
+                coords: [19.3892, -99.0234],
+                address: 'Av. Pantitlán, Col. Reforma',
+                description: 'Supermercado y tienda departamental',
+                website: 'https://www.walmart.com.mx/'
+            }
+        };
+
+        let map;
+        let currentMarker;
+        let currentLocation = 'starbucks';
+
+        function initMap() {
+            const initialLocation = locations[currentLocation];
+            
+            map = L.map('map').setView(initialLocation.coords, 15);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+            
+            updateMarker(currentLocation);
+        }
+
+        function updateMarker(locationKey) {
+            const location = locations[locationKey];
+            
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+            }
+            
+            const customIcon = L.divIcon({
+                className: 'custom-marker',
+                html: '<div style="background: #667eea; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"></div>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 30]
+            });
+            
+            currentMarker = L.marker(location.coords, { 
+                icon: customIcon,
+                title: location.name
+            }).addTo(map);
+            
+            const popupContent = `
+                <div style="font-family: sans-serif; padding: 8px; min-width: 200px;">
+                    <h3 style="margin: 0 0 8px 0; font-size: 1rem; color: #2c3e50;">${location.name}</h3>
+                    <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: #666;">
+                        ${location.address}
+                    </p>
+                    <a href="${location.website}" target="_blank" style="display: inline-block; margin-bottom: 6px; color: #667eea; text-decoration: none; font-size: 0.85rem;">
+                        Visitar sitio web →
+                    </a><br>
+                    <a href="https://www.google.com/maps?q=${location.coords[0]},${location.coords[1]}" target="_blank" style="display: inline-block; padding: 6px 12px; background: #667eea; color: white; text-decoration: none; border-radius: 4px; font-size: 0.8rem;">
+                        Abrir en Google Maps
+                    </a>
+                </div>
+            `;
+            
+            currentMarker.bindPopup(popupContent);
+            
+            map.setView(location.coords, 15, {
+                animate: true,
+                duration: 1
+            });
+            
+            setTimeout(() => {
+                currentMarker.openPopup();
+            }, 500);
+        }
+
+        function updateLocationInfo(locationKey) {
+            const location = locations[locationKey];
+            
+            document.getElementById('coordinates').textContent = 
+                `${location.coords[0]}, ${location.coords[1]}`;
+            document.getElementById('address').textContent = location.address;
+            document.getElementById('googleMapsLink').href = 
+                `https://www.google.com/maps?q=${location.coords[0]},${location.coords[1]}`;
+            
+            // Actualizar el enlace del sitio web en la info box
+            const websiteLink = document.getElementById('websiteLink');
+            websiteLink.href = location.website;
+            websiteLink.textContent = location.website.replace('https://', '').replace('http://', '').replace('www.', '');
+            
+            // Actualizar la sección de Instagram con el lugar seleccionado
+            document.getElementById('selectedPlaceName').textContent = location.name;
+            document.getElementById('selectedPlaceAddress').textContent = location.address;
+            document.getElementById('selectedPlaceWebsite').href = location.website;
+            
+            currentLocation = locationKey;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            updateLocationInfo('starbucks');
+            
+            document.querySelectorAll('.location-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const locationKey = this.dataset.location;
+                    updateMarker(locationKey);
+                    updateLocationInfo(locationKey);
+                    
+                    document.querySelectorAll('.location-item').forEach(i => {
+                        i.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
